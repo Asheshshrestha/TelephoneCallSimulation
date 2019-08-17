@@ -20,6 +20,7 @@ namespace TelephoneCallSimulation_LostCall
         static Dictionary<int, int> AT = new Dictionary<int, int>();
         static Dictionary<int, int> length = new Dictionary<int, int>();
         static int inuse=0;
+        int min = 0;
 
         int A =2;
         int B = 6;
@@ -153,34 +154,56 @@ namespace TelephoneCallSimulation_LostCall
         private void Timer1_Tick(object sender, EventArgs e)
         {
             int x = IndexPage.link;
-            int cn = dc;
+            int cn = From.Count;
             time = time + 1;
+            int s=0;
             clocktime.Text = time.ToString();
             label19.Text = callinqueue.ToString();
             //--------------------------------------------------------------------------------------  
            for(int i=0; i<n;i++ )
             this.Controls["textboxline"+(i).ToString()].Text = LineStatus[i].ToString();
             textBox6.Text = inuse.ToString();
-            if(From.Count>0)
+
+           
+            //-----------------------------------------------------------------------------
+            if (cn >0 )
             {
-                textBox1.Text = From[cn-1].ToString();
-                textBox2.Text = To[cn - 1].ToString();
-                textBox3.Text = length[cn - 1].ToString();
-                textBox4.Text = AT[cn - 1].ToString();
+                min = AT[0];
+                foreach (KeyValuePair<int, int> item in AT)
+                {
+                    if (item.Value < min)
+                    {
+                        s = item.Key;
+                        min = item.Value;
+                    }
+                }
+
+                textBox1.Text = From[s].ToString();
+                textBox2.Text = To[s].ToString();
+                textBox3.Text = length[s].ToString();
+                textBox4.Text = AT[s].ToString();
+                
             }
+            //------------------------------------------------------------------------------------- 
+           
+
             foreach (KeyValuePair<int, int> kvp in AT)
             {
                // Console.WriteLine("Key={0} and Value ={1}", kvp.Key, kvp.Value);
                 if(kvp.Value==time)
                 {
-                    Calculation calc = new Calculation();
+                   
 
                     this.Controls["textboxTo" + (x).ToString()].Text = To[kvp.Key].ToString();
                     this.Controls["textboxFrom" + (x).ToString()].Text = From[kvp.Key].ToString();
                     this.Controls["textboxEnd" + (x).ToString()].Text = (time+length[kvp.Key]).ToString();
-
+                    LineStatus[To[kvp.Key]-1] = 1;
+                    LineStatus[From[kvp.Key]-1] = 1;
+                    inuse = inuse + 1;
+                    x = x - 1;
                 }
             }
+            
 
           
 
@@ -193,33 +216,16 @@ namespace TelephoneCallSimulation_LostCall
         {
            // LineStatus[7] = 1;
 
-           if(LineStatus[f]==0 && LineStatus[t]==0)
-            {
-
-                if (inuse < 3)
-                {
+          
                     From.Add(dc, f);
                     To.Add(dc, t);
                     AT.Add(dc, a);
                     length.Add(dc, l);
-                    LineStatus[f] = 1;
-                    LineStatus[t] = 1;
-                    inuse = inuse + 1;
+                   
+                  
+                    
                     dc = dc + 1;
-                }
-                else
-                {
-                    throw new ArgumentException("Line is Full please wait for another call");
-                }
-
-
-                
-            }
-            else
-            {
-                throw new ArgumentNullException("Port is occupied try another port: ");
-            }
-            //---------------------------------------yaha pugyaxas ---------------------
+                //--------------------------------------yaha pugyaxas ---------------------
 
         }
 
