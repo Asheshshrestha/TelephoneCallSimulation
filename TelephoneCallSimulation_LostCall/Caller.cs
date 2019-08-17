@@ -32,13 +32,22 @@ namespace TelephoneCallSimulation_LostCall
             to = Convert.ToInt32(textBox2.Text);
             len = Convert.ToInt32(textBox3.Text);
             at = Convert.ToInt32(textBox4.Text);
-            System_State.callinqueue = System_State.callinqueue + 1;
-            s.InsertCall(from, to, at, len);
-                this.Close();
+                if (at > System_State.time)
+                {
+
+                    System_State.callinqueue = System_State.callinqueue + 1;
+                    s.InsertCall(from-1, to-1, at, len);
+                    this.Close();
+                }
+                else
+                {
+                    throw new ArgumentNullException("You cannot add past time ");
+
+                }
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Please Fill All the Box.");
+                MessageBox.Show(ex.Message);
             }
       
            

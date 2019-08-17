@@ -15,13 +15,19 @@ namespace TelephoneCallSimulation_LostCall
     public partial class System_State : Form
     {
        static Dictionary<int, int> LineStatus = new Dictionary<int, int>();
+        static Dictionary<int, int> From = new Dictionary<int, int>();
+        static Dictionary<int, int> To = new Dictionary<int, int>();
+        static Dictionary<int, int> AT = new Dictionary<int, int>();
+        static Dictionary<int, int> length = new Dictionary<int, int>();
+        static int inuse=0;
 
         int A =2;
         int B = 6;
         int C = 6;
         int D = 6;
-        int time;
-        public static int i=0;
+        public static int time;
+        int i=0,n;
+        static int dc = 0;
         public static int callinqueue=0;
 
        
@@ -40,7 +46,7 @@ namespace TelephoneCallSimulation_LostCall
             time = 0;
             timer1.Start();
             textBox5.Text = Convert.ToString(IndexPage.link);
-            int n = LineCalculate(Convert.ToInt32(textBox5.Text));
+            n = LineCalculate(Convert.ToInt32(textBox5.Text));
             for(int x=0; x<n;x++)
             {
                 LineStatus.Add(x, 0);
@@ -85,8 +91,7 @@ namespace TelephoneCallSimulation_LostCall
             txt.Top = A * 28;
             txt.Left = 15;
             txt.Name = "textboxline" + x;
-            txt.Text = LineStatus[i].ToString();
-          
+            txt.Text = LineStatus[x].ToString();
             txt.ReadOnly = true;
             txt.Width = 30;
            
@@ -101,7 +106,7 @@ namespace TelephoneCallSimulation_LostCall
             this.Controls.Add(txt);
             txt.Top = B*28;
             txt.Left = 370;
-            txt.Name = "textbox" + x;
+            txt.Name = "textboxFrom" + x;
             txt.Text="";
             txt.ReadOnly = true;
             txt.Width = 40;
@@ -115,7 +120,7 @@ namespace TelephoneCallSimulation_LostCall
             this.Controls.Add(txt);
             txt.Top = C * 28;
             txt.Left = 420;
-            txt.Name = "textbox" + x;
+            txt.Name = "textboxTo" + x;
             txt.Text = "";
             txt.ReadOnly = true;
             txt.Width = 40;
@@ -129,7 +134,7 @@ namespace TelephoneCallSimulation_LostCall
             this.Controls.Add(txt);
             txt.Top = D * 28;
             txt.Left = 470;
-            txt.Name = "textbox" + x;
+            txt.Name = "textboxEnd" + x;
             txt.Text = "";
             txt.ReadOnly = true;
             txt.Width = 40;
@@ -147,34 +152,73 @@ namespace TelephoneCallSimulation_LostCall
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
+            int x = IndexPage.link;
+            int cn = dc;
             time = time + 1;
             clocktime.Text = time.ToString();
             label19.Text = callinqueue.ToString();
-           
-            if (time > 5)
+            //--------------------------------------------------------------------------------------  
+           for(int i=0; i<n;i++ )
+            this.Controls["textboxline"+(i).ToString()].Text = LineStatus[i].ToString();
+            textBox6.Text = inuse.ToString();
+            if(From.Count>0)
             {
-                LineStatus[5] = 5;
-                ((TextBox)Linebox(5).Controls["textboxline" + (5).ToString()]).Update();
+                textBox1.Text = From[cn-1].ToString();
+                textBox2.Text = To[cn - 1].ToString();
+                textBox3.Text = length[cn - 1].ToString();
+                textBox4.Text = AT[cn - 1].ToString();
+            }
+            foreach (KeyValuePair<int, int> kvp in AT)
+            {
+               // Console.WriteLine("Key={0} and Value ={1}", kvp.Key, kvp.Value);
+                if(kvp.Value==time)
+                {
+                    Calculation calc = new Calculation();
 
+                    this.Controls["textboxTo" + (x).ToString()].Text = To[kvp.Key].ToString();
+                    this.Controls["textboxFrom" + (x).ToString()].Text = From[kvp.Key].ToString();
+                    this.Controls["textboxEnd" + (x).ToString()].Text = (time+length[kvp.Key]).ToString();
+
+                }
             }
 
+          
+
+
+            
         }
 
 
         public void InsertCall(int f,int t ,int a,int l)
         {
-            Dictionary<int,int> From = new Dictionary<int,int>();
-            Dictionary<int, int> To = new Dictionary<int, int>();
-            Dictionary<int, int> AT = new Dictionary<int, int>();
-            Dictionary<int, int> length = new Dictionary<int, int>();
+           // LineStatus[7] = 1;
 
-            From.Add(i,f);
-            To.Add(i,t);
-            AT.Add(i,a);
-            length.Add(i,l);
-                       
+           if(LineStatus[f]==0 && LineStatus[t]==0)
+            {
+
+                if (inuse < 3)
+                {
+                    From.Add(dc, f);
+                    To.Add(dc, t);
+                    AT.Add(dc, a);
+                    length.Add(dc, l);
+                    LineStatus[f] = 1;
+                    LineStatus[t] = 1;
+                    inuse = inuse + 1;
+                    dc = dc + 1;
+                }
+                else
+                {
+                    throw new ArgumentException("Line is Full please wait for another call");
+                }
 
 
+                
+            }
+            else
+            {
+                throw new ArgumentNullException("Port is occupied try another port: ");
+            }
             //---------------------------------------yaha pugyaxas ---------------------
 
         }
