@@ -21,12 +21,17 @@ namespace TelephoneCallSimulation_LostCall
         static Dictionary<int, int> length = new Dictionary<int, int>();
         static int inuse=0;
         int min = 0;
+        int blockcount = 0;
+        int processedcount = 0;
+        int busycount = 0;
+        int completecount = 0;
 
         int A =2;
         int B = 6;
         int C = 6;
         int D = 6;
         public static int time;
+        int xt = IndexPage.link;
         int i=0,n;
         static int dc = 0;
         public static int callinqueue=0;
@@ -61,7 +66,7 @@ namespace TelephoneCallSimulation_LostCall
                 CallInProgress_To(y);
                 CallInProgress_End(y);
             }
-            Console.WriteLine(LineStatus[5]);
+            
 
         }
 
@@ -153,7 +158,7 @@ namespace TelephoneCallSimulation_LostCall
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            int x = IndexPage.link;
+            
             int cn = From.Count;
             time = time + 1;
             int s=0;
@@ -171,10 +176,13 @@ namespace TelephoneCallSimulation_LostCall
                 min = AT[0];
                 foreach (KeyValuePair<int, int> item in AT)
                 {
-                    if (item.Value < min)
+                    if (item.Value >= time)
                     {
-                        s = item.Key;
-                        min = item.Value;
+                        if (item.Value < min)
+                        {
+                            s = item.Key;
+                            min = item.Value;
+                        }
                     }
                 }
 
@@ -192,18 +200,41 @@ namespace TelephoneCallSimulation_LostCall
                // Console.WriteLine("Key={0} and Value ={1}", kvp.Key, kvp.Value);
                 if(kvp.Value==time)
                 {
-                   
+                    processedcount = processedcount + 1;
+                    textBox7.Text = processedcount.ToString();
+                    if (inuse < 3)
 
-                    this.Controls["textboxTo" + (x).ToString()].Text = To[kvp.Key].ToString();
-                    this.Controls["textboxFrom" + (x).ToString()].Text = From[kvp.Key].ToString();
-                    this.Controls["textboxEnd" + (x).ToString()].Text = (time+length[kvp.Key]).ToString();
-                    LineStatus[To[kvp.Key]-1] = 1;
-                    LineStatus[From[kvp.Key]-1] = 1;
-                    inuse = inuse + 1;
-                    x = x - 1;
+                    {
+                        if (LineStatus[To[kvp.Key]]==0 && LineStatus[From[kvp.Key]]==0)
+                        {
+                            this.Controls["textboxTo" + (xt).ToString()].Text = To[kvp.Key].ToString();
+                            this.Controls["textboxFrom" + (xt).ToString()].Text = From[kvp.Key].ToString();
+                            this.Controls["textboxEnd" + (xt).ToString()].Text = (time + length[kvp.Key]).ToString();
+                            LineStatus[To[kvp.Key] - 1] = 1;
+                            LineStatus[From[kvp.Key] - 1] = 1;
+                            inuse = inuse + 1;
+                            xt = xt - 1;
+                        }
+                        else
+                        {
+                            busycount = busycount + 1;
+                            textBox9.Text = busycount.ToString();
+                        }
+                    }
+                    else
+                    {
+                        blockcount = blockcount + 1;
+                        textBox10.Text = blockcount.ToString();
+                    }
+
+                    
+
+
+
                 }
+               
             }
-            
+                        
 
           
 
