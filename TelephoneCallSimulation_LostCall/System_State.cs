@@ -19,6 +19,7 @@ namespace TelephoneCallSimulation_LostCall
         static Dictionary<int, int> To = new Dictionary<int, int>();
         static Dictionary<int, int> AT = new Dictionary<int, int>();
         static Dictionary<int, int> length = new Dictionary<int, int>();
+        static Dictionary<int, int> end = new Dictionary<int, int>();
         static int inuse=0;
         int min = 0;
         int blockcount = 0;
@@ -158,10 +159,10 @@ namespace TelephoneCallSimulation_LostCall
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            
-            int cn = From.Count;
             time = time + 1;
-            int s=0;
+            int cn = From.Count;
+            
+           
             clocktime.Text = time.ToString();
             label19.Text = callinqueue.ToString();
             //--------------------------------------------------------------------------------------  
@@ -170,27 +171,39 @@ namespace TelephoneCallSimulation_LostCall
             textBox6.Text = inuse.ToString();
 
            
+
+           
+            
             //-----------------------------------------------------------------------------
             if (cn >0 )
             {
-                min = AT[0];
+                int s=0;
+                
+                
                 foreach (KeyValuePair<int, int> item in AT)
                 {
+                    
+
                     if (item.Value >= time)
                     {
                         if (item.Value < min)
                         {
                             s = item.Key;
                             min = item.Value;
+                            
+
                         }
                     }
-                }
 
+                }
                 textBox1.Text = From[s].ToString();
                 textBox2.Text = To[s].ToString();
                 textBox3.Text = length[s].ToString();
                 textBox4.Text = AT[s].ToString();
-                
+
+
+
+
             }
             //------------------------------------------------------------------------------------- 
            
@@ -210,8 +223,9 @@ namespace TelephoneCallSimulation_LostCall
                             this.Controls["textboxTo" + (xt).ToString()].Text = To[kvp.Key].ToString();
                             this.Controls["textboxFrom" + (xt).ToString()].Text = From[kvp.Key].ToString();
                             this.Controls["textboxEnd" + (xt).ToString()].Text = (time + length[kvp.Key]).ToString();
+                            end.Add(kvp.Key, (time + length[kvp.Key]));
                             LineStatus[To[kvp.Key] - 1] = 1;
-                            LineStatus[From[kvp.Key] - 1] = 1;
+                            LineStatus[From[kvp.Key] - 1] = 1; 
                             inuse = inuse + 1;
                             xt = xt - 1;
                         }
@@ -232,21 +246,44 @@ namespace TelephoneCallSimulation_LostCall
 
 
                 }
-               
+
+                
             }
-                        
+            //-----------------------------------------------------------------------------
+            foreach (KeyValuePair<int, int> itr in end)
+            {
+                if (itr.Value == time)
+                {
+                    LineStatus[To[itr.Key] - 1] = 0;
+                    LineStatus[From[itr.Key] - 1] = 0;
+                    To.Remove(itr.Key);
+                    From.Remove(itr.Key);
+                    AT.Remove(itr.Key);
+                    length.Remove(itr.Key);
+                    inuse = inuse - 1;
+                    xt = xt + 1;
+                    completecount = completecount + 1;
+                    textBox8.Text = completecount.ToString();
+                    callinqueue = callinqueue - 1;
 
-          
+
+                }
+            }
 
 
-            
+
+
+
+
+
         }
 
 
         public void InsertCall(int f,int t ,int a,int l)
         {
-           // LineStatus[7] = 1;
+           
 
+            
           
                     From.Add(dc, f);
                     To.Add(dc, t);
@@ -256,7 +293,8 @@ namespace TelephoneCallSimulation_LostCall
                   
                     
                     dc = dc + 1;
-                //--------------------------------------yaha pugyaxas ---------------------
+              
+
 
         }
 
